@@ -21,8 +21,8 @@ pub enum MarketDataType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrderBook {
-    pub bids: BTreeMap<String, Decimal>, // price -> quantity
-    pub asks: BTreeMap<String, Decimal>, // price -> quantity
+    pub bids: BTreeMap<Decimal, Decimal>, // price -> quantity (sorted desc for bids)
+    pub asks: BTreeMap<Decimal, Decimal>, // price -> quantity (sorted asc for asks)
     pub last_update: DateTime<Utc>,
 }
 
@@ -69,10 +69,10 @@ impl OrderBookManager {
 
     pub fn get_best_bid_ask(&self, symbol: &str) -> Option<(Decimal, Decimal)> {
         self.books.get(symbol).and_then(|book| {
-            let best_bid = book.bids.keys().last()
-                .and_then(|price| Decimal::from_str(price).ok())?;
-            let best_ask = book.asks.keys().next()
-                .and_then(|price| Decimal::from_str(price).ok())?;
+            // Bids are sorted in ascending order, so we want the last (highest)
+            let best_bid = book.bids.keys().last().copied()?;
+            // Asks are sorted in ascending order, so we want the first (lowest)
+            let best_ask = book.asks.keys().next().copied()?;
             Some((best_bid, best_ask))
         })
     }
@@ -107,34 +107,28 @@ impl OrderBook {
     }
 
     pub fn update_bid(&mut self, price: Decimal, quantity: Decimal) {
-        let price_str = price.to_string();
-        if quantity.is_zero() {
-            self.bids.remove(&price_str);
+        if quantity > Decimal::ZERO {
+            self.bids.insert(price, quantity);
         } else {
-            self.bids.insert(price_str, quantity);
+            self.bids.remove(&price);
         }
         self.last_update = Utc::now();
     }
 
     pub fn update_ask(&mut self, price: Decimal, quantity: Decimal) {
-        let price_str = price.to_string();
-        if quantity.is_zero() {
-            self.asks.remove(&price_str);
+        if quantity > Decimal::ZERO {
+            self.asks.insert(price, quantity);
         } else {
-            self.asks.insert(price_str, quantity);
+            self.asks.remove(&price);
         }
         self.last_update = Utc::now();
     }
 
     pub fn best_bid(&self) -> Option<(Decimal, Decimal)> {
-        self.bids.iter().last().and_then(|(price, qty)| {
-            Some((Decimal::from_str(price).ok()?, *qty))
-        })
+        self.bids.iter().next_back().map(|(&price, &qty)| (price, qty))
     }
 
     pub fn best_ask(&self) -> Option<(Decimal, Decimal)> {
-        self.asks.iter().next().and_then(|(price, qty)| {
-            Some((Decimal::from_str(price).ok()?, *qty))
-        })
+        self.asks.iter().next().map(|(&price, &qty)| (price, qty))
     }
 }

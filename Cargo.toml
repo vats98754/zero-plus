@@ -27,6 +27,8 @@ tokio-tungstenite = "0.20"
 url = "2.4"
 rust_decimal = { version = "1.30", features = ["serde-float"] }
 dashmap = "5.5"
+reqwest = { version = "0.11", features = ["json", "stream"] }
+moka = { version = "0.12", features = ["future"] }
 
 [dev-dependencies]
 tokio-test = "0.4"

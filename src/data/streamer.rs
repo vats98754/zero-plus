@@ -29,21 +29,33 @@ impl DataStreamer {
     }
 
     pub async fn start(&self) -> Result<mpsc::Receiver<MarketData>> {
-        let (tx, rx) = mpsc::channel::<MarketData>(1000);
+        let (tx, rx) = mpsc::channel::<MarketData>(10000); // Increased buffer size
         
-        // Start data sources
+        // Start data sources in parallel for better throughput
+        let mut handles = Vec::new();
+        
         for source in &self.config.market_data_sources {
             let source_clone = source.clone();
             let tx_clone = tx.clone();
             let nats_client = self.nats_client.clone();
             let subject = self.config.subject.clone();
             
-            tokio::spawn(async move {
+            let handle = tokio::spawn(async move {
                 if let Err(e) = Self::start_websocket_feed(source_clone, tx_clone, nats_client, subject).await {
                     error!("WebSocket feed error: {}", e);
                 }
             });
+            handles.push(handle);
         }
+        
+        // Monitor all spawned tasks
+        tokio::spawn(async move {
+            for handle in handles {
+                if let Err(e) = handle.await {
+                    error!("Data source task failed: {}", e);
+                }
+            }
+        });
         
         Ok(rx)
     }
