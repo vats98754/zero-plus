@@ -1,0 +1,36 @@
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+/tmp/
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test results
+test-results/
+
+# Coverage reports
+tarpaulin-report.html
+lcov.info
