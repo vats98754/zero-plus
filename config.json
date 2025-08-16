@@ -1,0 +1,66 @@
+{
+  "data": {
+    "nats_url": "nats://localhost:4222",
+    "subject": "market_data",
+    "market_data_sources": [
+      {
+        "name": "arbitrum_uniswap",
+        "websocket_url": "wss://arb-mainnet.g.alchemy.com/v2/YOUR_API_KEY",
+        "symbols": ["ARB/USDC", "GMX/USDC", "MAGIC/USDC"],
+        "source_type": "CryptoL2"
+      },
+      {
+        "name": "optimism_velodrome",
+        "websocket_url": "wss://opt-mainnet.g.alchemy.com/v2/YOUR_API_KEY",
+        "symbols": ["OP/USDC", "VELO/USDC"],
+        "source_type": "CryptoL2"
+      },
+      {
+        "name": "polygon_quickswap",
+        "websocket_url": "wss://polygon-mainnet.g.alchemy.com/v2/YOUR_API_KEY", 
+        "symbols": ["MATIC/USDC", "QUICK/USDC"],
+        "source_type": "CryptoL2"
+      },
+      {
+        "name": "penny_stocks_alpaca",
+        "websocket_url": "wss://stream.data.alpaca.markets/v2/stocks",
+        "symbols": ["SIRI", "NOK", "ZNGA", "PLTR"],
+        "source_type": "PennyStocks"
+      }
+    ]
+  },
+  "strategy": {
+    "spread_target": "0.0005",
+    "position_size": "100.0",
+    "max_inventory": "1000.0", 
+    "rebalance_threshold": "500.0",
+    "tick_size": "0.0001"
+  },
+  "execution": {
+    "exchange_urls": [
+      "https://api.uniswap.org",
+      "https://api.1inch.io"
+    ],
+    "api_keys": [],
+    "order_timeout_ms": 5000,
+    "max_orders_per_second": 10
+  },
+  "risk": {
+    "max_position_size": "10000.0",
+    "max_drawdown": "0.02",
+    "stop_loss_pct": "0.01", 
+    "daily_loss_limit": "1000.0",
+    "position_limits": [
+      {
+        "symbol": "ARB/USDC",
+        "max_position": "5000.0",
+        "max_notional": "50000.0"
+      },
+      {
+        "symbol": "SIRI",
+        "max_position": "10000.0", 
+        "max_notional": "25000.0"
+      }
+    ]
+  }
+}
