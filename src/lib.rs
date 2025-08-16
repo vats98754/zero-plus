@@ -4,6 +4,9 @@ pub mod strategy;
 pub mod execution;
 pub mod risk;
 
+#[cfg(test)]
+mod performance_test;
+
 pub use config::*;
 pub use data::{DataStreamer, OrderBookManager, MarketData, MarketDataType, OrderBook, Trade, Quote};
 pub use strategy::ZeroPlusStrategy;
